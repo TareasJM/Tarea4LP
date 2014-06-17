@@ -34,12 +34,6 @@
     (getInList (getInList pzzl y) x)
     )
   )
-(display puzzle)
-(newline)
-(display words)
-(newline)
-(getByRC puzzle 0 10)
-(getByRC words 1 3)
 ;Reeplaza un elemto en list con posicion x
 (define replaceInList
   (lambda (list x c (cx 0) (nl '()))
@@ -51,15 +45,35 @@
     )
   )
 ;Reeplaza un elemento en pzzl en la pos row,col
-(define replaceByRC
+(define replaceCByRC
   (lambda (pzzl y x c (cy 0) (np '()))
     (cond
       ((empty? pzzl) (reverse np))
-      ((eq? y cy) (begin (set! np (cons (replaceInList (car pzzl) x c) np)) (replaceByRC (cdr pzzl) y x c (+ cy 1) np)))
-      (else (begin (set! np (cons (car pzzl) np)) (replaceByRC (cdr pzzl) y x c (+ cy 1) np)))
+      ((eq? y cy) (begin (set! np (cons (replaceInList (car pzzl) x c) np)) (replaceCByRC (cdr pzzl) y x c (+ cy 1) np)))
+      (else (begin (set! np (cons (car pzzl) np)) (replaceCByRC (cdr pzzl) y x c (+ cy 1) np)))
       )
     )
   )
+; Intenta reemplazar una palabra en pzzl
+(define replaceWByRCD
+  (lambda (pzzl y x d w (np pzzl))
+      (cond
+        ((eq? d 'r) (begin (cond
+                             ((empty? w) np)
+                             ((empty? np) pzzl)
+                             ((eq? '* (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
+                             ((eq? 'r (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
+                             ((eq? 'b (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
+                             ((eq? (car w) (getByRC np y x )) (begin (set! np (replaceCByRC np x y (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
+                             (else pzzl)
+                             ) ))
+        )
+      )
+  )
 
-;(replaceInList (list 1 2 3 4 5) 0 'X )
-(replaceByRC puzzle 5 0 'X)
+(display  puzzle)
+(newline)
+;(display words)
+;(newline)
+(replaceWByRCD puzzle 2 0 'r (list 'a 'b 'c 'd 'e 'f 'g))
+(display puzzle)
