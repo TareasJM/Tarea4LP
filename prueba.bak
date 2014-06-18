@@ -1,0 +1,7 @@
+#lang scheme
+(define (snoc Lista1 Lista2) 
+(if (null? Lista1)
+(list Lista2) 
+(cons (car Lista1) (snoc (cdr Lista1) Lista2))
+)
+)
