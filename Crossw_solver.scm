@@ -138,10 +138,16 @@
 
 (define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
 
-(call-with-output-file crsswout
-  (lambda (output-port)
-    (begin
-      (display solution output-port)
-      )
+(define writeSol
+  (lambda (sol (file (open-output-file crsswout)))
+    (if (empty? sol)(begin (close-output-port file) "Solucion guardada") 
+        (begin
+          (display (car sol) file)(display (car sol))
+          (newline file)(newline)
+          (writeSol (cdr sol) file)
+          )
+        )
     )
   )
+
+(writeSol solution)

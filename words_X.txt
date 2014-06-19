@@ -1,1 +1,1 @@
-("pescado" "pollo" "pan" "tomate" "queso" "pastel")
+'("pescado" "pollo" "pan" "tomate" "queso" "pastel")
