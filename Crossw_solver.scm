@@ -6,13 +6,13 @@
 (define wrdsin (string-append  "words_" (string-append pzzlnum ".txt")))
 
 ;Lee puzzle.txt y lo pasa a lista
-(define puzzle (call-with-input-file crsswin read))
+(define puzzle (car (cdr (call-with-input-file crsswin read))))
 
 ;Lee words.txt y lo pasa a lista
 (define words
  (letrec
   ((gw
-   (lambda ((list '()) (file (call-with-input-file wrdsin read)))
+   (lambda ((list '()) (file (car (cdr (call-with-input-file wrdsin read)))))
     (cond
       ((empty? file) list)
       (else (gw (cons (string->list (car file)) list) (cdr file)))
@@ -139,12 +139,16 @@
 (define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
 
 (define writeSol
-  (lambda (sol (file (open-output-file crsswout)))
-    (if (empty? sol)(begin (close-output-port file) "Solucion guardada") 
-        (begin
-          (display (car sol) file)(display (car sol))
-          (newline file)(newline)
-          (writeSol (cdr sol) file)
+  (lambda (sol (file (open-output-file crsswout)) (b #t))
+    (cond
+        ((empty? sol)(begin (display ")" file) (close-output-port file) "Solucion guardada"))
+        ((eq? b #t) (begin (display "'(" file) (writeSol sol file #f)))
+        (else
+          (begin
+            (display (car sol) file)(display (car sol))
+            (newline file)(newline)
+            (writeSol (cdr sol) file #f)
+            )
           )
         )
     )
