@@ -1,6 +1,6 @@
 #lang scheme
 ;Numero del puzzle a solucionar
-(define pzzlnum "1")
+(define pzzlnum "X")
 (define crsswin (string-append  "crossword_" (string-append pzzlnum ".txt")))
 (define crsswout (string-append  "solve_" (string-append pzzlnum ".txt")))
 (define wrdsin (string-append  "words_" (string-append pzzlnum ".txt")))
@@ -27,31 +27,12 @@
  )
 )
 
-;Auxiliar para permute
-(define (insert l n e)
-  (if (= 0 n)
-      (cons e l)
-      (cons (car l) 
-            (insert (cdr l) (- n 1) e))))
-
-;Auxiliar para permute
-(define (seq start end)
-  (if (= start end)
-      (list end)
-      (cons start (seq (+ start 1) end))))
-
-;***** permute *****
-;genera todas las posibles permutaciones de la lista l 
-;l: lista de la que se quiere generar las permutaciones (positions)
+;***** sendBack *****
+;Envia el primer elemento al final de la lista
 ;**************************
-(define (permute l)
-  (if (null? l)
-      '(())
-      (apply append (map (lambda (p)
-                           (map (lambda (n)
-                                  (insert p n (car l)))
-                                (seq 0 (length p))))
-                         (permute (cdr l))))))
+(define sendBack
+  (lambda (lista) (append (cdr lista) (list (car lista))))
+  )
 
 ;***** getInList *****
 ;Encuentra elemento de la lista en la posicion X 
@@ -113,6 +94,7 @@
                              ((empty? np) #f)
                              ((eq? '* (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
                              ((eq? 'r (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
+                             ((eq? 'd (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
                              ((eq? 'b (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
                              ((eq? (car w) (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
                              (else #f)
@@ -121,6 +103,7 @@
                              ((empty? w) (if (not(or (eq? (getByRC np y x) '-)(eq? (getByRC np y x) #f))) #f np))
                              ((empty? np) #f)
                              ((eq? '* (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
+                             ((eq? 'r (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
                              ((eq? 'd (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
                              ((eq? 'b (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
                              ((eq? (car w) (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
@@ -145,25 +128,24 @@
       )
     )
   )
-(define positions (permute (getPositions puzzle)))
+(define positions (getPositions puzzle))
 
 ;***** solveCrossw *****
-;Funcion principal que usa todas las anteriores para encontrar unsa solucion
+;Funcion principal que usa todas las anteriores para encontrar unna solucion
 ;**************************
 (define solveCrssw
-  (lambda (pzzl wrds pstns cw cp np)
-    (if (or (empty? cw) (empty? pstns)) np
+  (lambda (pzzl wrds pstns (np '()))
+    (if (or (empty? wrds) (empty? pstns)) pzzl
         (begin
-          (set! np (replaceWByRCD np (getByRC cp 0 1)(getByRC cp 0 2)(getByRC cp 0 0) (car cw)))
+          (set! np (replaceWByRCD pzzl (getByRC pstns 0 1)(getByRC pstns 0 2)(getByRC pstns 0 0) (car wrds)))
           (if (eq? np #f)
-              (solveCrssw pzzl wrds (cdr pstns) wrds (car pstns) pzzl) (solveCrssw pzzl wrds pstns (cdr cw) (cdr cp) np))
+              (solveCrssw pzzl (sendBack wrds) pstns) (solveCrssw np (cdr wrds) (cdr pstns)))
           )
       )
     )
   )
-
 ;declara solution como solucion del crucigrama
-(define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
+(define solution (solveCrssw puzzle words positions puzzle))
 
 ;***** writeSol *****
 ;escribe la solucion en el archivo correspondiente

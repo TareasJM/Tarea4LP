@@ -1,1 +1,1 @@
-'("camino" "tez" "iterar" "techo" "caminar" "trompeta" "palmera" "thor" "pito")
+'("camino" "tez" "mio" "iterar" "techo" "caminar" "trompeta" "palmera" "thor" "pez" "amiga" "pito")

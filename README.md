@@ -7,3 +7,4 @@ Marco Antonio Salinas Carrasco		201273589-0
 
 ========
 Antes de ejecutar, verificar que solve_X.txt no exista.
+Para resolver otro crusigrama, solo reemplazar "X" al inicio del codigo del programa.
