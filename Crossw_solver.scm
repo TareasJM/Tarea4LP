@@ -110,22 +110,19 @@
   )
 
 ;Lee todas los inicios de palabra en pzzl
-(define positions (list '(r 0 9) '(r 1 3) '(r 2 0) '(r 4 5) '(d 0 9) '(d 1 3) ))
-;(define positions (list '(d 1 3) '(r 2 0)))
 (define getPositions
   (lambda (pzzl (cr 0)(cc 0)(pos '()))
     (cond
       ((empty? pzzl) pos )
-      ((eq? (getByRC pzzl 0 cc) #f) (getPositions (cdr pzzl) (+ cr 1) 0 pos ) )
-      ((eq? (getByRC pzzl 0 cc) 'r) (begin (set! pos (append '(list 'r cr cc) pos)) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
-      ((eq? (getByRC pzzl 0 cc) 'd) (begin (set! pos (append '(list 'r cr cc) pos)) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
-      ((eq? (getByRC pzzl 0 cc) 'b) (begin (set! pos (append '(list 'r cr cc) pos)) (set! pos (append '(list 'r cr cc))) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
-      (else (begin (display pzzl)(newline)(getPositions (cdr pzzl) cr (+ cc 1) pos )))
+      ((eq? (getInList (car pzzl) cc) #f) (getPositions (cdr pzzl) (+ cr 1) 0 pos ) )
+      ((eq? (getInList (car pzzl) cc) 'r) (begin (set! pos (cons (list 'r cr cc) pos)) (getPositions pzzl cr (+ cc 1) pos )) )
+      ((eq? (getInList (car pzzl) cc) 'd) (begin (set! pos (cons (list 'd cr cc) pos)) (getPositions pzzl cr (+ cc 1) pos )) )
+      ((eq? (getInList (car pzzl) cc) 'b) (begin (set! pos (cons (list 'r cr cc) pos)) (set! pos (cons (list 'd cr cc) pos)) (getPositions pzzl cr (+ cc 1) pos )) )
+      (else (getPositions pzzl cr (+ cc 1) pos ))
       )
     )
   )
-(getPositions puzzle)
-;(set! positions (permute positions))
+(define positions (permute (getPositions puzzle)))
 
 (define solveCrssw
   (lambda (pzzl wrds pstns cw cp np)
@@ -139,12 +136,12 @@
     )
   )
 
-;(define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
+(define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
 
-;(call-with-output-file crsswout
-;  (lambda (output-port)
-;    (begin
-;      (display solution output-port)
-;      )
-;    )
-;  )
+(call-with-output-file crsswout
+  (lambda (output-port)
+    (begin
+      (display solution output-port)
+      )
+    )
+  )
