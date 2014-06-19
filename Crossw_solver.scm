@@ -17,6 +17,35 @@
  )
 )
 
+;Lee todas los inicios de palabra en pzzl
+(define positions (list '(r 0 9) '(r 1 3) '(r 2 0) '(r 4 5) '(d 0 9) '(d 1 3) ))
+;(define positions (list '(d 1 3) '(r 2 0)))
+
+;Auxiliar para permute
+(define (insert l n e)
+  (if (= 0 n)
+      (cons e l)
+      (cons (car l) 
+            (insert (cdr l) (- n 1) e))))
+
+;Auxiliar para permute
+(define (seq start end)
+  (if (= start end)
+      (list end)
+      (cons start (seq (+ start 1) end))))
+
+;Todas las posibles permutaciones de la lista l 
+(define (permute l)
+  (if (null? l)
+      '(())
+      (apply append (map (lambda (p)
+                           (map (lambda (n)
+                                  (insert p n (car l)))
+                                (seq 0 (length p))))
+                         (permute (cdr l))))))
+
+(set! positions (permute positions))
+
 ;Encuentra elemento de la lista en la posicion X 
 (define getInList
   (lambda (list x (cx 0))
@@ -59,21 +88,61 @@
   (lambda (pzzl y x d w (np pzzl))
       (cond
         ((eq? d 'r) (begin (cond
-                             ((empty? w) np)
-                             ((empty? np) pzzl)
+                             ((empty? w) (if (not(or (eq? (getByRC np y x) '-)(eq? (getByRC np y x) #f))) #f np))
+                             ((empty? np) #f)
                              ((eq? '* (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
                              ((eq? 'r (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
                              ((eq? 'b (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
-                             ((eq? (car w) (getByRC np y x )) (begin (set! np (replaceCByRC np x y (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
-                             (else pzzl)
+                             ((eq? (car w) (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np y (+ x 1) d (cdr w))))
+                             (else #f)
+                             ) ))
+        ((eq? d 'd) (begin (cond
+                             ((empty? w) (if (not(or (eq? (getByRC np y x) '-)(eq? (getByRC np y x) #f))) #f np))
+                             ((empty? np) #f)
+                             ((eq? '* (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
+                             ((eq? 'd (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
+                             ((eq? 'b (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
+                             ((eq? (car w) (getByRC np y x )) (begin (set! np (replaceCByRC np y x (car w) )) (replaceWByRCD np (+ y 1) x d (cdr w))))
+                             (else #f)
                              ) ))
         )
       )
   )
 
-(display  puzzle)
-(newline)
-;(display words)
-;(newline)
-(replaceWByRCD puzzle 2 0 'r (list 'a 'b 'c 'd 'e 'f 'g))
-(display puzzle)
+(define solveCrssw2
+  (lambda (pzzl wrds pstns pl (np '()))
+    (if (empty? wrds) pzzl
+      (begin
+        (display pstns)(newline)(display pl)(newline)
+        (set! np (replaceWByRCD pzzl (getByRC pl 0 1)(getByRC pl 0 2)(getByRC pl 0 0) (car wrds)))
+        (if (eq? np #f)
+          (solveCrssw2 pzzl wrds pstns (cdr pl)) (solveCrssw2 np (cdr wrds) pstns pstns))
+        )
+      )
+    )
+  )
+(define solveCrssw
+  (lambda (pzzl wrds pstns cw cp np)
+    (if (or (empty? cw) (empty? pstns)) np
+        (begin
+          ;(display cw)(newline)
+          (set! np (replaceWByRCD np (getByRC cp 0 1)(getByRC cp 0 2)(getByRC cp 0 0) (car cw)))
+          (if (eq? np #f)
+              (solveCrssw pzzl wrds (cdr pstns) wrds (car pstns) pzzl) (solveCrssw pzzl wrds pstns (cdr cw) (cdr cp) np))
+          )
+      )
+    )
+  )
+;(replaceWByRCD puzzle 6 11 'd (list '-))
+;(display positions)
+(define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
+
+(call-with-output-file "solution.txt"
+  (lambda (output-port)
+    (begin
+      (display solution output-port)
+      )
+    )
+  )
+
+;(getByRC words 0 1)
