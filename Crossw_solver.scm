@@ -1,12 +1,18 @@
 #lang scheme
+;Numero del puzzle a solucionar
+(define pzzlnum "X")
+(define crsswin (string-append  "crossword_" (string-append pzzlnum ".txt")))
+(define crsswout (string-append  "solve_" (string-append pzzlnum ".txt")))
+(define wrdsin (string-append  "words_" (string-append pzzlnum ".txt")))
+
 ;Lee puzzle.txt y lo pasa a lista
-(define puzzle (call-with-input-file "crossword_X.txt" read))
+(define puzzle (call-with-input-file crsswin read))
 
 ;Lee words.txt y lo pasa a lista
 (define words
  (letrec
   ((gw
-   (lambda ((list '()) (file (call-with-input-file "words_X.txt" read)))
+   (lambda ((list '()) (file (call-with-input-file wrdsin read)))
     (cond
       ((empty? file) list)
       (else (gw (cons (string->list (car file)) list) (cdr file)))
@@ -16,10 +22,6 @@
   (gw)
  )
 )
-
-;Lee todas los inicios de palabra en pzzl
-(define positions (list '(r 0 9) '(r 1 3) '(r 2 0) '(r 4 5) '(d 0 9) '(d 1 3) ))
-;(define positions (list '(d 1 3) '(r 2 0)))
 
 ;Auxiliar para permute
 (define (insert l n e)
@@ -43,8 +45,6 @@
                                   (insert p n (car l)))
                                 (seq 0 (length p))))
                          (permute (cdr l))))))
-
-(set! positions (permute positions))
 
 ;Encuentra elemento de la lista en la posicion X 
 (define getInList
@@ -109,23 +109,28 @@
       )
   )
 
-(define solveCrssw2
-  (lambda (pzzl wrds pstns pl (np '()))
-    (if (empty? wrds) pzzl
-      (begin
-        (display pstns)(newline)(display pl)(newline)
-        (set! np (replaceWByRCD pzzl (getByRC pl 0 1)(getByRC pl 0 2)(getByRC pl 0 0) (car wrds)))
-        (if (eq? np #f)
-          (solveCrssw2 pzzl wrds pstns (cdr pl)) (solveCrssw2 np (cdr wrds) pstns pstns))
-        )
+;Lee todas los inicios de palabra en pzzl
+(define positions (list '(r 0 9) '(r 1 3) '(r 2 0) '(r 4 5) '(d 0 9) '(d 1 3) ))
+;(define positions (list '(d 1 3) '(r 2 0)))
+(define getPositions
+  (lambda (pzzl (cr 0)(cc 0)(pos '()))
+    (cond
+      (display cr)(newline)(display cc)(newline)
+      ((empty? pzzl) pos )
+      ((eq? (getByRC pzzl 0 cc) #f) (getPositions (cdr pzzl) (+ cr 1) 0 pos ) )
+      ((eq? (getByRC pzzl 0 cc) 'r) (begin (set! pos (append '(list 'r cr cc) pos)) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
+      ((eq? (getByRC pzzl 0 cc) 'd) (begin (set! pos (append '(list 'r cr cc) pos)) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
+      ((eq? (getByRC pzzl 0 cc) 'b) (begin (set! pos (append '(list 'r cr cc) pos)) (set! pos (append '(list 'r cr cc))) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
       )
     )
   )
+(getPositions puzzle)
+;(set! positions (permute positions))
+
 (define solveCrssw
   (lambda (pzzl wrds pstns cw cp np)
     (if (or (empty? cw) (empty? pstns)) np
         (begin
-          ;(display cw)(newline)
           (set! np (replaceWByRCD np (getByRC cp 0 1)(getByRC cp 0 2)(getByRC cp 0 0) (car cw)))
           (if (eq? np #f)
               (solveCrssw pzzl wrds (cdr pstns) wrds (car pstns) pzzl) (solveCrssw pzzl wrds pstns (cdr cw) (cdr cp) np))
@@ -133,16 +138,13 @@
       )
     )
   )
-;(replaceWByRCD puzzle 6 11 'd (list '-))
-;(display positions)
-(define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
 
-(call-with-output-file "solution.txt"
-  (lambda (output-port)
-    (begin
-      (display solution output-port)
-      )
-    )
-  )
+;(define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
 
-;(getByRC words 0 1)
+;(call-with-output-file crsswout
+;  (lambda (output-port)
+;    (begin
+;      (display solution output-port)
+;      )
+;    )
+;  )
