@@ -10,16 +10,20 @@
 
 (define funcion
   (lambda (lista)
-    (let funcion1 ((LG lista) (LR (list'())) (x 0) (y 0) (aux 8) (largo 8))
+    (let funcion1 ((LG lista) (LR (list '())) (x 0) (y 0) (aux (length(car lista))) (largo (length(car lista))))
       (cond
         (
+         ((null? LG)LR)
+         
          ((equal? aux 0)
+          
          (begin
            (set! y (+ y 1))
-           (set! aux (= aux 8))
+           (set! aux (= aux length(car(lista))))
            (funcion1 (car(cdr LG)) LR x y aux largo)
            ))
-         ((and((equal? (car(car LG)) #\r) (equal? (car(car(cdr LG))) #\*)))
+         
+         ((equal? (car(car LG)) #\r)
           (begin
             (set! x (- largo aux))
             (set! aux(- aux 1))
@@ -28,12 +32,8 @@
             (addElement (LR y))
             (funcion1 (car(cdr LG)) LR x y aux largo)
             ))
-         ((and((not (equal? (car(car LG)) #\r)) (not(equal? (car(car(cdr LG))) #\*))))
-          (begin
-            (set! aux(- aux 1))
-            (funcion1 (car(cdr LG)) LR x y aux largo)
-            ))                                               
-         ((and((equal? (car(car LG)) #\d) (equal? (car(car(cdr LG))) #\*)))
+         
+         ((equal? (car(car LG)) #\d)
           (begin
             (set! x (- largo aux))
             (set! aux(- aux 1))
@@ -42,12 +42,8 @@
             (addElement (LR y))
             (funcion1 (car(cdr LG)) LR x y aux largo)
             ))
-         ((and((not (equal? (car(car LG)) #\d)) (not(equal? (car(car(cdr LG))) #\*))))
-          (begin
-            (set! aux(- aux 1))
-            (funcion1 (car(cdr LG)) LR x y aux largo)
-            )) 
-         ((and((equal? (car(car LG)) #\b) (equal? (car(car(cdr LG))) #\*)))
+         
+         ((equal? (car(car LG)) #\b)
           (begin
             (set! x (- largo aux))
             (set! aux(- aux 1))
@@ -56,16 +52,30 @@
             (addElement (LR y))
             (funcion1 (car(cdr LG)) LR x y aux largo)
             ))
-         ((and((not (equal? (car(car LG)) #\b)) (not(equal? (car(car(cdr LG))) #\*))))
+         
+         ((not (equal? (car(car LG)) #\r))
+          (begin
+            (set! aux(- aux 1))
+            (funcion1 (car(cdr LG)) LR x y aux largo)
+            ))                                               
+         
+         ((not (equal? (car(car LG)) #\d))
+          (begin
+            (set! aux(- aux 1))
+            (funcion1 (car(cdr LG)) LR x y aux largo)
+            )) 
+         
+         ((not (equal? (car(car LG)) #\b))
           (begin
             (set! aux(- aux 1))
             (funcion1 (car(cdr LG)) LR x y aux largo)
             ))             
-         ((equal? y (length LG))LR)
           )
         )
       )
     )
   )
+
+
            
 	 
