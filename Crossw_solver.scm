@@ -115,12 +115,12 @@
 (define getPositions
   (lambda (pzzl (cr 0)(cc 0)(pos '()))
     (cond
-      (display cr)(newline)(display cc)(newline)
       ((empty? pzzl) pos )
       ((eq? (getByRC pzzl 0 cc) #f) (getPositions (cdr pzzl) (+ cr 1) 0 pos ) )
       ((eq? (getByRC pzzl 0 cc) 'r) (begin (set! pos (append '(list 'r cr cc) pos)) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
       ((eq? (getByRC pzzl 0 cc) 'd) (begin (set! pos (append '(list 'r cr cc) pos)) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
       ((eq? (getByRC pzzl 0 cc) 'b) (begin (set! pos (append '(list 'r cr cc) pos)) (set! pos (append '(list 'r cr cc))) (getPositions (cdr pzzl) cr (+ cc 1) pos )) )
+      (else (begin (display pzzl)(newline)(getPositions (cdr pzzl) cr (+ cc 1) pos )))
       )
     )
   )
