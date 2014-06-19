@@ -1,1 +1,1 @@
-("tomate" "pastel")
+'("camino" "tez" "iterar" "techo" "caminar" "trompeta" "palmera" "thor" "pito")

@@ -1,6 +1,6 @@
 #lang scheme
 ;Numero del puzzle a solucionar
-(define pzzlnum "X")
+(define pzzlnum "1")
 (define crsswin (string-append  "crossword_" (string-append pzzlnum ".txt")))
 (define crsswout (string-append  "solve_" (string-append pzzlnum ".txt")))
 (define wrdsin (string-append  "words_" (string-append pzzlnum ".txt")))
