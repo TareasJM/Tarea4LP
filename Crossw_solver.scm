@@ -5,10 +5,14 @@
 (define crsswout (string-append  "solve_" (string-append pzzlnum ".txt")))
 (define wrdsin (string-append  "words_" (string-append pzzlnum ".txt")))
 
+;***** funcion anonima ****
 ;Lee puzzle.txt y lo pasa a lista
+;**************************
 (define puzzle (car (cdr (call-with-input-file crsswin read))))
 
+;***** funcion anonima ****
 ;Lee words.txt y lo pasa a lista
+;**************************
 (define words
  (letrec
   ((gw
@@ -36,7 +40,10 @@
       (list end)
       (cons start (seq (+ start 1) end))))
 
-;Todas las posibles permutaciones de la lista l 
+;***** permute *****
+;genera todas las posibles permutaciones de la lista l 
+;l: lista de la que se quiere generar las permutaciones (positions)
+;**************************
 (define (permute l)
   (if (null? l)
       '(())
@@ -46,7 +53,9 @@
                                 (seq 0 (length p))))
                          (permute (cdr l))))))
 
+;***** getInList *****
 ;Encuentra elemento de la lista en la posicion X 
+;**************************
 (define getInList
   (lambda (list x (cx 0))
     (cond
@@ -57,13 +66,19 @@
      )
     )
   )
+
+;***** getByRC *****
 ;Encuentra elemento en pzzl en fila row y columna col
+;**************************
 (define getByRC
   (lambda (pzzl y x)
     (getInList (getInList pzzl y) x)
     )
   )
+
+;***** replaceInList *****
 ;Reeplaza un elemto en list con posicion x
+;**************************
 (define replaceInList
   (lambda (list x c (cx 0) (nl '()))
     (cond
@@ -73,7 +88,10 @@
       )
     )
   )
+
+;***** replaceCByRC *****
 ;Reeplaza un elemento en pzzl en la pos row,col
+;**************************
 (define replaceCByRC
   (lambda (pzzl y x c (cy 0) (np '()))
     (cond
@@ -83,7 +101,10 @@
       )
     )
   )
+
+;***** replaceWByRCD *****
 ; Intenta reemplazar una palabra en pzzl
+;**************************
 (define replaceWByRCD
   (lambda (pzzl y x d w (np pzzl))
       (cond
@@ -109,7 +130,9 @@
       )
   )
 
-;Lee todas los inicios de palabra en pzzl
+;***** getPositions *****
+;Lee y retorna todos los inicios de palabra en pzzl
+;**************************
 (define getPositions
   (lambda (pzzl (cr 0)(cc 0)(pos '()))
     (cond
@@ -124,6 +147,9 @@
   )
 (define positions (permute (getPositions puzzle)))
 
+;***** solveCrossw *****
+;Funcion principal que usa todas las anteriores para encontrar unsa solucion
+;**************************
 (define solveCrssw
   (lambda (pzzl wrds pstns cw cp np)
     (if (or (empty? cw) (empty? pstns)) np
@@ -136,8 +162,12 @@
     )
   )
 
+;declara solution como solucion del crucigrama
 (define solution (solveCrssw puzzle words (cdr positions) words (car positions) puzzle))
 
+;***** writeSol *****
+;escribe la solucion en el archivo correspondiente
+;**************************
 (define writeSol
   (lambda (sol (file (open-output-file crsswout)) (b #t))
     (cond
@@ -153,5 +183,5 @@
         )
     )
   )
-
+;escribe solucion
 (writeSol solution)
