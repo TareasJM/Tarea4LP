@@ -33,18 +33,6 @@
 (define sendBack
   (lambda (lista) (append (cdr lista) (list (car lista))))
   )
-;***** inList? *****
-;Retorna si un elemnto se encuentra en una lista
-;**************************
-(define inList?
-  (lambda (lista x)
-    (cond
-      ((empty? lista) #f)
-      ((eq? (car lista) x) #t)
-      (else (inList? (cdr lista) x))
-      )
-    )
-  )
 
 ;***** getInList *****
 ;Encuentra elemento de la lista en la posicion X 
@@ -142,8 +130,25 @@
   )
 (define positions (getPositions puzzle))
 
+;***** solveCrossw *****
+;Funcion principal que usa todas las anteriores para encontrar unna solucion
+;**************************
+(define solveCrssw
+  (lambda (pzzl wrds pstns (np '()))
+    (if (or (empty? wrds) (empty? pstns)) pzzl
+        (begin
+          (set! np (replaceWByRCD pzzl (getByRC pstns 0 1)(getByRC pstns 0 2)(getByRC pstns 0 0) (car wrds)))
+          (if (eq? np #f)
+              (solveCrssw pzzl (sendBack wrds) pstns) (solveCrssw np (cdr wrds) (cdr pstns)))
+          )
+      )
+    )
+  )
+;declara solution como solucion del crucigrama
+(define solution (solveCrssw puzzle words positions puzzle))
+
 ;***** writeSol *****
-;escribe la solucion en el archivo solve_X.txt correspondiente
+;escribe la solucion en el archivo correspondiente
 ;**************************
 (define writeSol
   (lambda (sol (file (open-output-file crsswout)) (b #t))
@@ -160,35 +165,5 @@
         )
     )
   )
-
-(define show
-  (lambda (pzzl)
-    (if (empty? pzzl)(begin (display "------------------------------------------------------------------------------------------------")(newline))(begin (display (car pzzl))(newline)(show (cdr pzzl))))
-    )
-  )
-
-;***** solveCrossw *****
-;Funcion principal que usa todas las anteriores para encontrar unna solucion
-;**************************
-(define solveCrssw
-  (lambda (pzzl wrds pstns (oldPzzl '()) (oldWrds '()) (oldPstns '()) (oldTried '()) (tried '()) (wc (length wrds)) (np '()) (c #t))
-    (if (empty? pstns) (writeSol pzzl)
-        (begin
-          (show pzzl)
-          (set! np (replaceWByRCD pzzl (getByRC pstns 0 1)(getByRC pstns 0 2)(getByRC pstns 0 0) (car wrds)))
-          (cond
-            ((= wc 0) (solveCrssw (car oldPzzl) (sendBack (car oldWrds)) (car oldPstns) (cdr oldPzzl) (cdr oldWrds) (cdr oldPstns) (cdr oldTried) (car oldTried) (- (length (car oldWrds)) 1)))
-            ((inList? tried (car wrds))(solveCrssw pzzl (sendBack wrds) pstns oldPzzl oldWrds oldPstns oldTried  tried (- wc 1)))
-            ((eq? np #f)(solveCrssw pzzl (sendBack wrds) pstns oldPzzl oldWrds oldPstns oldTried (cons (car wrds) tried) (- wc 1)))
-            (else (solveCrssw np (cdr wrds) (cdr pstns) (cons pzzl oldPzzl) (cons wrds oldWrds) (cons pstns oldPstns) (cons (cons (car wrds) tried) oldTried) ))
-            )
-          )
-      )
-    )
-  )
-;declara solution como solucion del crucigrama
-;(define solution (solveCrssw puzzle words positions))
-(solveCrssw puzzle words positions)
 ;escribe solucion
-;(display positions)(newline)
-;(writeSol solution)
+(writeSol solution)
